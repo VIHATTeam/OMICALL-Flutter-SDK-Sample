@@ -5,7 +5,7 @@ import 'package:calling/screens/dialScreen/dial_screen.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:omicall_flutter_plugin/omicall.dart';
+import 'package:omicall_flutter_plugin/model/action_list.dart';
 
 class HomeScreen extends StatefulWidget {
   // var phoneNumber = "";
@@ -14,12 +14,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  TextEditingController phoneNumber = TextEditingController()
-    ..text = '3497702';
+  TextEditingController phoneNumber = TextEditingController()..text = '3497702';
   TextEditingController userName = TextEditingController()..text = '100';
   TextEditingController password = TextEditingController()..text = 'ConCung100';
   bool _isLoginSuccess = false;
-  TextStyle basicStyle = TextStyle(color: Colors.white, fontSize: 16);
+  TextStyle basicStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 16,
+  );
 
   Gradient gradient4 = LinearGradient(
     colors: [
@@ -94,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.person),
                             labelText: "User Name",
-                            enabledBorder: myinputborder(),
-                            focusedBorder: myfocusborder(),
+                            enabledBorder: myInputBorder(),
+                            focusedBorder: myFocusBorder(),
                           ),
                         ),
                         SizedBox(
@@ -106,8 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.password),
                             labelText: "Password",
-                            enabledBorder: myinputborder(),
-                            focusedBorder: myfocusborder(),
+                            enabledBorder: myInputBorder(),
+                            focusedBorder: myFocusBorder(),
                           ),
                         ),
                       ],
@@ -120,8 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.phone),
                             labelText: "Phone Number",
-                            enabledBorder: myinputborder(),
-                            focusedBorder: myfocusborder(),
+                            enabledBorder: myInputBorder(),
+                            focusedBorder: myFocusBorder(),
                           ),
                         ),
                       ],
@@ -176,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  OutlineInputBorder myinputborder() {
+  OutlineInputBorder myInputBorder() {
     //return type is OutlineInputBorder
     return OutlineInputBorder(
         //Outline border type for TextFeild
@@ -187,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ));
   }
 
-  OutlineInputBorder myfocusborder() {
+  OutlineInputBorder myFocusBorder() {
     return OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(20)),
         borderSide: BorderSide(
@@ -215,7 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> makeCall(BuildContext context, {String? phone}) async {
+  Future<void> makeCall(
+    BuildContext context, {
+    String? phone,
+  }) async {
     var params = <String, dynamic>{
       'phoneNumber': phone ?? phoneNumber.text,
     };

@@ -5,8 +5,11 @@ class GradientButton extends StatelessWidget {
   final Function onPressed;
   final Gradient gradient;
 
-  GradientButton(
-      {required this.onPressed, required this.child, required this.gradient});
+  GradientButton({
+    required this.onPressed,
+    required this.child,
+    required this.gradient,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +22,13 @@ class GradientButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30.0),
         ),
         child: Container(
-            constraints: BoxConstraints(maxWidth: 200.0, minHeight: 50.0),
-            alignment: Alignment.center,
-            child: child),
+          constraints: BoxConstraints(
+            maxWidth: 200.0,
+            minHeight: 50.0,
+          ),
+          alignment: Alignment.center,
+          child: child,
+        ),
       ),
       splashColor: Colors.black12,
       padding: EdgeInsets.all(0),

@@ -7,9 +7,8 @@ import 'package:calling/main.dart';
 import 'package:calling/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:omicall_flutter_plugin/constant/enums.dart';
+import 'package:omicall_flutter_plugin/model/action_list.dart';
 import 'package:omicall_flutter_plugin/model/action_model.dart';
-import 'package:omicall_flutter_plugin/omicall.dart';
-
 import '../../../numeric_keyboard/numeric_keyboard.dart';
 import 'dial_button.dart';
 
@@ -19,10 +18,9 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  // static const MethodChannel _channel = const MethodChannel('omikit');
-  bool _isAudio = true;
-  bool _isMic = true;
-  String _duration = 'Calling';
+  bool _isMuted = false;
+  bool _isMic = false;
+  String _message = 'Connecting';
   bool _isShowKeyboard = false;
   String message = "";
 
@@ -33,11 +31,25 @@ class _BodyState extends State<Body> {
   void initState() {
     super.initState();
     omiChannel.listerEvent((action) {
-      if (action.actionName == "onCallEstablished") {
+      if (action.actionName == OmiEventList.onCallEstablished) {
         _setDuration();
       }
-      if (action.actionName == "onCallEnd") {
+      if (action.actionName == OmiEventList.onCallEnd) {
         Navigator.pop(context);
+      }
+      if (action.actionName == OmiEventList.onMuted) {
+        if (mounted) {
+          setState(() {
+            _isMuted = action.data["isMuted"] as bool;
+          });
+        }
+      }
+      if (action.actionName == OmiEventList.onRinging) {
+        if (mounted) {
+          setState(() {
+            _message = "Ringing";
+          });
+        }
       }
     });
   }
@@ -47,8 +59,10 @@ class _BodyState extends State<Body> {
       message = "$message$value";
     });
     final action = ActionModel(
-      actionName: ActionName.SEND_DTMF,
-      data: {"character": value},
+      actionName: OmiActionName.SEND_DTMF,
+      data: {
+        "character": value,
+      },
     );
     omiChannel.action(action: action);
   }
@@ -72,7 +86,7 @@ class _BodyState extends State<Body> {
                       .copyWith(color: Colors.white),
                 ),
                 Text(
-                  _duration,
+                  _message,
                   style: TextStyle(color: Colors.white60),
                 ),
                 VerticalSpacing(),
@@ -87,16 +101,16 @@ class _BodyState extends State<Body> {
                           : 'assets/icons/ic_block_microphone.svg',
                       text: "Microphone",
                       press: () {
-                        toggleMute(context);
+                        toggleSpeaker(context);
                       },
                     ),
                     DialButton(
-                      iconSrc: _isAudio
+                      iconSrc: !_isMuted
                           ? 'assets/icons/ic_audio.svg'
                           : 'assets/icons/ic_no_audio.svg',
                       text: "Audio",
                       press: () {
-                        toggleSpeaker(context);
+                        toggleMute(context);
                       },
                     ),
                     DialButton(
@@ -153,7 +167,9 @@ class _BodyState extends State<Body> {
                 ),
                 Row(
                   children: [
-                    const SizedBox(width: 54,),
+                    const SizedBox(
+                      width: 54,
+                    ),
                     Expanded(
                       child: Text(
                         message,
@@ -181,7 +197,9 @@ class _BodyState extends State<Body> {
                         size: 30,
                       ),
                     ),
-                    const SizedBox(width: 24,),
+                    const SizedBox(
+                      width: 24,
+                    ),
                   ],
                 ),
                 const SizedBox(
@@ -231,16 +249,13 @@ class _BodyState extends State<Body> {
   Future<void> toggleMute(BuildContext context) async {
     final action = OmiAction.toggleMute();
     omiChannel.action(action: action);
-    setState(() {
-      _isMic = !_isMic;
-    });
   }
 
   Future<void> toggleSpeaker(BuildContext context) async {
     setState(() {
-      _isAudio = !_isAudio;
+      _isMic = !_isMic;
     });
-    final action = OmiAction.toggleSpeaker(_isAudio);
+    final action = OmiAction.toggleSpeaker(_isMic);
     omiChannel.action(action: action);
   }
 
@@ -278,7 +293,7 @@ class _BodyState extends State<Body> {
   _updateTime(Timer timer) {
     if (watch.isRunning) {
       setState(() {
-        _duration = transformMilliSeconds(watch.elapsedMilliseconds);
+        _message = transformMilliSeconds(watch.elapsedMilliseconds);
       });
     }
   }
